@@ -60,32 +60,32 @@ fn ptr_trie_insert_and_hash(c: &mut Criterion) {
     );
 }
 
-fn hashing(c: &mut Criterion) {
-    let mut data = Vec::new();
-    for _ in 0..TRIE_SIZE {
-        data.push(B256::random());
-    }
+// fn hashing(c: &mut Criterion) {
+//     let mut data = Vec::new();
+//     for _ in 0..TRIE_SIZE {
+//         data.push(B256::random());
+//     }
 
-    let mut hash_cache = HashMap::default();
+//     let mut hash_cache = HashMap::default();
 
-    c.bench_function(&format!("hashing_{}_elements", TRIE_SIZE), |b| {
-        b.iter(|| {
-            for d in data.iter() {
-                let hash = keccak256(d);
-                black_box(hash);
-            }
-        })
-    });
+//     c.bench_function(&format!("hashing_{}_elements", TRIE_SIZE), |b| {
+//         b.iter(|| {
+//             for d in data.iter() {
+//                 let hash = keccak256(d);
+//                 black_box(hash);
+//             }
+//         })
+//     });
 
-    c.bench_function(&format!("hashing_{}_elements_with_cache", TRIE_SIZE), |b| {
-        b.iter(|| {
-            for d in data.iter() {
-                let hash = hash_cache.entry(d).or_insert_with(|| keccak256(d));
-                black_box(hash);
-            }
-        })
-    });
-}
+//     c.bench_function(&format!("hashing_{}_elements_with_cache", TRIE_SIZE), |b| {
+//         b.iter(|| {
+//             for d in data.iter() {
+//                 let hash = hash_cache.entry(d).or_insert_with(|| keccak256(d));
+//                 black_box(hash);
+//             }
+//         })
+//     });
+// }
 
 fn cloning(c: &mut Criterion) {
     let mut data = Vec::new();
@@ -116,7 +116,7 @@ fn cloning(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    hashing,
+    // hashing,
     cloning,
     ptr_trie_insert_only,
     ptr_trie_insert_and_hash,

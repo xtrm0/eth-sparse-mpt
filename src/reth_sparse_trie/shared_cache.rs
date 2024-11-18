@@ -12,7 +12,7 @@ use alloy_trie::Nibbles;
 /// It should be created once for each parent block and can be shared with a different threads.
 #[derive(Debug, Clone, Default)]
 pub struct SparseTrieSharedCache {
-    internal: Arc<RwLock<RethSparseTrieShareCacheInternal>>,
+    pub internal: Arc<RwLock<RethSparseTrieShareCacheInternal>>,
 }
 
 pub struct StorageTrieInfo {}

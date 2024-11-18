@@ -4,6 +4,7 @@ use change_set::prepare_change_set_for_prefetch;
 use hash::RootHashError;
 use reth_db_api::database::Database;
 use reth_provider::providers::ConsistentDbView;
+use reth_provider::BlockReader;
 use reth_provider::DatabaseProviderFactory;
 use reth_provider::ExecutionOutcome;
 use std::time::Duration;
@@ -66,13 +67,14 @@ impl ChangedAccountData {
 
 /// Prefetches data
 pub fn prefetch_tries_for_accounts<'a, DB, Provider>(
-    consistent_db_view: ConsistentDbView<DB, Provider>,
+    consistent_db_view: ConsistentDbView<Provider>,
     shared_cache: SparseTrieSharedCache,
     changed_data: impl Iterator<Item = &'a ChangedAccountData>,
 ) -> Result<(), SparseTrieError>
 where
     DB: Database,
-    Provider: DatabaseProviderFactory<DB> + Send + Sync,
+    Provider: DatabaseProviderFactory + Send + Sync,
+    Provider::Provider: BlockReader,
 {
     let change_set = prepare_change_set_for_prefetch(changed_data);
 
@@ -96,13 +98,14 @@ where
 /// * shared_cache should be created once for each parent block and it stores fethed parts of the trie
 /// It uses rayon for parallelism and the thread pool should be configured from outside.
 pub fn calculate_root_hash_with_sparse_trie<DB, Provider>(
-    consistent_db_view: ConsistentDbView<DB, Provider>,
+    consistent_db_view: ConsistentDbView<Provider>,
     outcome: &ExecutionOutcome,
     shared_cache: SparseTrieSharedCache,
 ) -> (Result<B256, SparseTrieError>, SparseTrieMetrics)
 where
     DB: Database,
-    Provider: DatabaseProviderFactory<DB> + Send + Sync,
+    Provider: DatabaseProviderFactory + Send + Sync,
+    Provider::Provider: BlockReader,
 {
     let mut metrics = SparseTrieMetrics::default();
 

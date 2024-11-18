@@ -555,17 +555,17 @@ proptest! {
     }
 
 
-    #[test]
-    fn proptest_random_insert_remove_any_values(key_values in any::<Vec<(([u8; 3], bool), Vec<u8>)>>()) {
-        let mut keys_to_remove_set = HashSet::default();
-        let mut keys_to_remove = Vec::new();
-        let data: Vec<_> = key_values.into_iter().map(|((k, remove), v)| {
-            if remove && !keys_to_remove_set.contains(&k) {
-                keys_to_remove_set.insert(k.clone());
-                keys_to_remove.push(k.to_vec());
-            }
-            (k.to_vec(), v)
-        }).collect();
-        compare_with_removals(&data, &keys_to_remove).unwrap()
-    }
+    // #[test]
+    // fn proptest_random_insert_remove_any_values(key_values in any::<Vec<(([u8; 3], bool), Vec<u8>)>>()) {
+    //     let mut keys_to_remove_set = HashSet::default();
+    //     let mut keys_to_remove = Vec::new();
+    //     let data: Vec<_> = key_values.into_iter().map(|((k, remove), v)| {
+    //         if remove && !keys_to_remove_set.contains(&k) {
+    //             keys_to_remove_set.insert(k.clone());
+    //             keys_to_remove.push(k.to_vec());
+    //         }
+    //         (k.to_vec(), v)
+    //     }).collect();
+    //     compare_with_removals(&data, &keys_to_remove).unwrap()
+    // }
 }

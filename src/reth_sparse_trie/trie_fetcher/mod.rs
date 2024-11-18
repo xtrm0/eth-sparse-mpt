@@ -1,18 +1,19 @@
-use crate::utils::{hash_map_with_capacity, HashMap, HashSet};
-use alloy_primitives::{Bytes, B256};
+use std::ops::Deref;
+
+use crate::utils::hash_map_with_capacity;
+
+use alloy_primitives::{Bytes, B256, map::{HashMap, HashSet}};
 use alloy_trie::Nibbles;
 use rayon::prelude::*;
-use reth_db_api::database::Database;
 use reth_errors::ProviderError;
 use reth_execution_errors::trie::StateProofError;
 use reth_provider::providers::ConsistentDbView;
-use reth_provider::DatabaseProviderFactory;
+use reth_provider::{BlockReader, DBProvider, DatabaseProviderFactory};
 use reth_trie::proof::Proof;
 use reth_trie::{MultiProof as RethMultiProof, EMPTY_ROOT_HASH};
 use reth_trie_db::{DatabaseHashedCursorFactory, DatabaseTrieCursorFactory};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, Seq};
-use std::collections::HashMap as StdHashMap;
 
 use super::shared_cache::MissingNodes;
 
@@ -51,16 +52,16 @@ pub struct StorageMultiProof {
 }
 
 #[derive(Debug)]
-pub struct TrieFetcher<DB, Provider> {
-    consistent_db_view: ConsistentDbView<DB, Provider>,
+pub struct TrieFetcher<Provider> {
+    consistent_db_view: ConsistentDbView<Provider>,
 }
 
-impl<DB, Provider> TrieFetcher<DB, Provider>
+impl<Provider> TrieFetcher<Provider>
 where
-    DB: Database,
-    Provider: DatabaseProviderFactory<DB> + Send + Sync,
+    Provider: DatabaseProviderFactory + Send + Sync,
+    Provider::Provider: BlockReader,
 {
-    pub fn new(consistent_db_view: ConsistentDbView<DB, Provider>) -> Self {
+    pub fn new(consistent_db_view: ConsistentDbView<Provider>) -> Self {
         Self { consistent_db_view }
     }
 
@@ -80,7 +81,7 @@ where
                     DatabaseHashedCursorFactory::new(provider.tx_ref()),
                 );
 
-                let reth_multiproof = proof.with_targets(targets).multiproof()?;
+                let reth_multiproof = proof.multiproof(targets)?;
                 let result = convert_reth_multiproof(reth_multiproof, &all_requested_accounts);
                 Ok(result)
             })
@@ -103,7 +104,7 @@ fn pad_path(mut path: Nibbles) -> B256 {
 
 fn get_proof_targets(
     missing_nodes: MissingNodes,
-) -> (Vec<StdHashMap<B256, Vec<B256>>>, HashSet<B256>) {
+) -> (Vec<HashMap<B256, HashSet<B256>>>, HashSet<B256>) {
     // we will split all missing nodes accounts into buckets of (missing accounts / account_per_fetch)
     let account_per_fetch = 5;
 
@@ -130,10 +131,11 @@ fn get_proof_targets(
     let mut result = Vec::new();
     let mut iter = targets.into_iter();
     loop {
-        let mut split_target = StdHashMap::new();
+        let mut split_target = HashMap::default();
         let mut count = 0;
         while let Some((target_key, target_value)) = iter.next() {
-            split_target.insert(target_key, target_value);
+            let tv_hs: HashSet<B256> = target_value.into_iter().collect();
+            split_target.insert(target_key, tv_hs);
             count += 1;
             if count > account_per_fetch {
                 break;
@@ -182,8 +184,8 @@ fn convert_reth_multiproof(
     all_requested_accounts: &HashSet<B256>,
 ) -> MultiProof {
     let mut account_subtree = Vec::with_capacity(reth_proof.account_subtree.len());
-    for (k, v) in reth_proof.account_subtree {
-        account_subtree.push((k, v));
+    for (k, v) in reth_proof.account_subtree.deref() {
+        account_subtree.push((k.clone(), v.clone()));
     }
     account_subtree.sort_by_key(|a| a.0.clone());
     let mut storages = hash_map_with_capacity(reth_proof.storages.len());
@@ -196,8 +198,8 @@ fn convert_reth_multiproof(
         }
         let mut subtree = Vec::with_capacity(reth_storage_proof.subtree.len());
 
-        for (k, v) in reth_storage_proof.subtree {
-            subtree.push((k, v));
+        for (k, v) in reth_storage_proof.subtree.deref() {
+            subtree.push((k.clone(), v.clone()));
         }
         subtree.sort_by_key(|a| a.0.clone());
         let v = StorageMultiProof { subtree };

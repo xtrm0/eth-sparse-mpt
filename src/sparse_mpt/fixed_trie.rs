@@ -111,7 +111,7 @@ impl From<AlloyBranchNode> for FixedBranchNode {
                 let rlp_data = stack_iter
                     .next()
                     .expect("stack must be the same size as mask");
-                children[index as usize] = Some(rlp_data.into());
+                children[index as usize] = Some(rlp_data.to_vec().into());
                 child_mask |= 1 << index
             }
         }
@@ -132,7 +132,7 @@ impl From<AlloyExtensionNode> for FixedExtensionNode {
     fn from(alloy_extension_node: AlloyExtensionNode) -> Self {
         Self {
             key: alloy_extension_node.key,
-            child: alloy_extension_node.child.into(),
+            child: alloy_extension_node.child.to_vec().into(),
         }
     }
 }
@@ -234,6 +234,7 @@ impl FixedTrie {
                     child_ptr: None,
                 },
                 AlloyTrieNode::Leaf(node) => FixedTrieNode::Leaf(Arc::new(node.into())),
+                AlloyTrieNode::EmptyRoot => FixedTrieNode::Null,
             };
 
             // here we find parent to link with this new node

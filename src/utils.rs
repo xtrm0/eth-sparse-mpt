@@ -2,26 +2,31 @@ use alloy_primitives::{keccak256, Bytes, B256};
 use alloy_rlp::{length_of_length, BufMut, Encodable, Header, EMPTY_STRING_CODE};
 use alloy_trie::nodes::{ExtensionNodeRef, LeafNodeRef};
 use alloy_trie::Nibbles;
-use reth_trie::word_rlp;
-use rustc_hash::{FxBuildHasher, FxHasher};
+use rustc_hash::FxHasher;
 use serde::{Deserialize, Serialize};
+pub use alloy_primitives::map::{HashMap, HashSet};
 
 use crate::reth_sparse_trie::change_set::ETHTrieChangeSet;
 use crate::reth_sparse_trie::trie_fetcher::MultiProof;
 use crate::sparse_mpt::DiffTrie;
 
-pub type HashMap<K, V> = std::collections::HashMap<K, V, FxBuildHasher>;
-pub type HashSet<K> = std::collections::HashSet<K, FxBuildHasher>;
 
-pub fn hash_map_with_capacity<K, V>(capacity: usize) -> HashMap<K, V> {
-    HashMap::with_capacity_and_hasher(capacity, FxBuildHasher)
-}
+
+
+pub fn hash_map_with_capacity<K, V>(capacity: usize) -> HashMap<K, V>
+where
+    K: std::hash::Hash + Eq,
+{
+    let mut ret = HashMap::default();
+    ret.reserve(capacity);
+    ret
+} 
 
 pub fn rlp_pointer(rlp_encode: Bytes) -> Bytes {
     if rlp_encode.len() < 32 {
         rlp_encode
     } else {
-        word_rlp(&keccak256(&rlp_encode)).into()
+        reth_trie::RlpNode::word_rlp(&keccak256(&rlp_encode)).to_vec().into()
     }
 }
 

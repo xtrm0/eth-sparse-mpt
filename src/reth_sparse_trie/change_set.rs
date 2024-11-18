@@ -1,6 +1,8 @@
 use alloy_primitives::{keccak256, Address, Bytes, B256};
-use revm::db::BundleAccount;
-use revm_primitives::AccountInfo;
+// use revm::db::BundleAccount;
+// use reth_primitives::revm_primitives::AccountInfo;
+
+use reth_revm::{db::BundleAccount, primitives::AccountInfo};
 use serde::{Deserialize, Serialize};
 
 use crate::ChangedAccountData;
