@@ -13,22 +13,22 @@ rayon = "1.10.0"
 smallvec = "1.13.2"
 
 # reth
-reth-primitives = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43"}
-reth-db-api = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-errors = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-execution-errors = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-trie = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-trie-db = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-provider = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
-reth-revm = { git = "https://github.com/paradigmxyz/reth", commit = "7ae8ce1d0096a32211cda406c1f1176cfc217b43" }
+reth-primitives = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2"}
+reth-db-api = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-errors = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-execution-errors = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-trie = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-trie-db = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-provider = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
+reth-revm = { git = "https://github.com/paradigmxyz/reth", tag="v1.1.2" }
 
 # alloy
-alloy-primitives = { version = "0.8.0", default-features = false, features = ["asm-keccak"] }
+alloy-primitives = { version = "0.8.11", default-features = false, features = ["asm-keccak"] }
 alloy-rlp = "0.3.4"
 alloy-trie = { version = "0.7.3", default-features = false }
-alloy-rpc-types = "0.6.0"
-alloy-rpc-types-eth = "0.6.0"
-alloy-json-rpc = "0.6.0"
+alloy-rpc-types = "0.6.4"
+alloy-rpc-types-eth = "0.6.4"
+alloy-json-rpc = "0.6.4"
 
 
 
